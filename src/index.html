@@ -1,0 +1,75 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Twitterapp</title>
+  <base href="/">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.6/css/materialize.min.css">
+  <link href="http://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+  <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.6/js/materialize.min.js"></script>
+  
+</head>
+<body ng-app="myApp" ng-controller="myController">
+	<label style= "font-size: 20px; font-family: inherit; margin-left: 15px;">Google Login : <input type="button" style= "width: 100px; height: 30px; margin-top: 20px;" ng-click="onGoogleLogin()" value="Login" id="google-login"/></label>
+	<h4> {{gmail.username}} </h4>
+	<h4> {{gmail.email}} </h4>
+	<app-root></app-root>
+	<script type="text/javascript">
+	//Google Login
+		function onLoadFunction(){
+		gapi.client.setApiKey('AIzaSyDwd4X2kny6UA3TA6rkrYu1otma_dW7Pi0');
+		gapi.client.load('plus', 'v1', function() {});
+		}
+	</script>
+	<script type="text/javascript">
+		var myApp = angular.module("myApp", []);
+
+		myApp.controller('myController', ['$scope', function($scope) {
+		$scope.gmail = {
+			username : "",
+			email: ""
+		};
+		$scope.onGoogleLogin = function() {
+			var params = {
+				'clientid': '717180135068-p04jqtrpijg1i6vobk5q7c32v08up9i6.apps.googleusercontent.com',
+				'cookiepolicy': 'single_host_origin',
+				'callback' : function(result){
+					if(result['status']['signed_in']){
+						var request = gapi.client.plus.people.get(
+							{
+								'userId' : 'me'
+							}
+						);
+						request.execute(function(resp) {
+							$scope.$apply(function(){
+								$scope.gmail.username = resp.displayName;
+								$scope.gmail.email = resp.emails[0].value;
+							});
+						});
+					}
+				},
+				'approvalprompt': 'force',
+				'scope': 'https://www.googleapis.com/auth/plus.login https://www.googleapis.com/auth/plus.profile.emails.read'
+			};
+		
+			gapi.auth.signIn(params);
+		}					
+	}]);	
+	</script>
+	<script type="text/javascript">
+		(function() {
+			var p = document.createElement('script');
+			p.type = 'text/javascript';
+			p.async = true;
+			p.src = 'https://apis.google.com/js/client.js?onload=onLoadFunction';
+			var s = document.getElementsByTagName('script')[0];
+			s.parentNode.insertBefore(p, s);
+			})();	
+	</script>
+</body>
+</html>
